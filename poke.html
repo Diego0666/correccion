@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokédex Aleatoria</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f8f8ff;
+      transition: background 0.8s;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+      gap: 20px;
+      max-width: 1200px;
+      margin-top: 80px;
+      /*margin: auto;*/
+      min-height: 100vh;
+    }
+
+    .column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .left {
+      align-items: center;
+    }
+
+    .center {
+      justify-content: center;
+      height: 100%;
+    }
+
+    .right {
+      align-items: stretch;
+    }
+
+    .pokemon-name {
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #222;
+      text-shadow: 0 2px 6px #fff7;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .pokemon-image {
+      width: 100%;
+      max-width: 220px;
+      height: auto;
+      aspect-ratio: 1/1;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 10px;
+    }
+
+    .pokemon-id,
+    .pokemon-height,
+    .pokemon-weight {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 4px 0;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 10px 15px;
+      margin: 10px 0;
+      text-align: center;
+      min-width: 200px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-box .label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .types span,
+    .weaknesses span {
+      display: inline-block;
+      margin: 2px 4px;
+    }
+
+    .stat-item {
+      margin: 10px 0;
+    }
+
+    .stat-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .progress-container {
+      width: 100%;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      height: 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #4CAF50, #8BC34A);
+      transition: width 1s ease-in-out;
+      text-align: right;
+      padding-right: 5px;
+      color: white;
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .center {
+        justify-content: flex-start;
+        height: auto;
+      }
+
+      .info-box {
+        min-width: auto;
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="column left">
+      <div id="pokemon-nombre" class="pokemon-name">Cargando...</div>
+      <img id="pokemon-imagen" class="pokemon-image" src="" alt="Imagen Pokémon">
+      <div id="pokemon-id" class="pokemon-id"></div>
+      <div id="pokemon-height" class="pokemon-height"></div>
+      <div id="pokemon-weight" class="pokemon-weight"></div>
+    </div>
+
+    <div class="column center">
+      <div class="info-box types">
+        <span class="label">Tipo:</span>
+        <span id="pokemon-tipo"></span>
+      </div>
+      <div class="info-box weaknesses">
+        <span class="label">Debilidades:</span>
+        <span id="pokemon-debilidades"></span>
+      </div>
+    </div>
+
+    <div class="column right">
+      <div id="stats"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const typeColorMap = {
+      normal: '#A8A77A', fire: '#EE8130', water: '#6390F0',
+      electric: '#F7D02C', grass: '#7AC74C', ice: '#96D9D6',
+      fighting: '#C22E28', poison: '#A33EA1', ground: '#E2BF65',
+      flying: '#A98FF3', psychic: '#F95587', bug: '#A6B91A',
+      rock: '#B6A136', ghost: '#735797', dragon: '#6F35FC',
+      dark: '#705746', steel: '#B7B7CE', fairy: '#D685AD'
+    };
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const randomId = Math.floor(Math.random() * 898) + 1;
+        const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
+        const pokemon = res.data;
+
+        const imageUrl = pokemon.sprites.other['official-artwork'].front_default;
+        const types = pokemon.types.map(t => t.type.name);
+        const weaknesses = await getWeaknesses(types);
+
+        document.getElementById('pokemon-imagen').src = imageUrl;
+        document.getElementById('pokemon-imagen').alt = pokemon.name;
+        document.getElementById('pokemon-nombre').textContent = pokemon.name.toUpperCase();
+        document.getElementById('pokemon-id').textContent = `ID: #${pokemon.id}`;
+        document.getElementById('pokemon-height').textContent = `Altura: ${(pokemon.height / 10).toFixed(2)} m`;
+        document.getElementById('pokemon-weight').textContent = `Peso: ${(pokemon.weight / 10).toFixed(2)} kg`;
+
+        const tiposHTML = types.map(t =>
+          `<span style="color: ${typeColorMap[t] || '#000'}; font-weight: bold;">${t}</span>`
+        ).join(', ');
+        document.getElementById('pokemon-tipo').innerHTML = tiposHTML;
+
+        const debilidadesHTML = weaknesses.map(t =>
+          `<span style="color: ${typeColorMap[t] || '#000'}; font-weight: bold;">${t}</span>`
+        ).join(', ');
+        document.getElementById('pokemon-debilidades').innerHTML = debilidadesHTML;
+
+        const statsContainer = document.getElementById('stats');
+        statsContainer.innerHTML = '';
+        pokemon.stats.forEach(stat => {
+          const statValue = stat.base_stat;
+          const maxStat = 250;
+          const statItem = document.createElement('div');
+          statItem.className = 'stat-item';
+          statItem.innerHTML = `
+            <div class="stat-label">
+              <span>${stat.stat.name.toUpperCase()}</span>
+              <span>${statValue}/${maxStat}</span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar" style="width: ${(statValue / maxStat) * 100}%">
+                ${Math.round((statValue / maxStat) * 100)}%
+              </div>
+            </div>
+          `;
+          statsContainer.appendChild(statItem);
+        });
+
+        // Fondo de página
+        const body = document.body;
+        const typeColors = types.map(t => typeColorMap[t] || '#ccc');
+        if (typeColors.length === 1) {
+          body.style.background = typeColors[0];
+        } else {
+          body.style.background = `linear-gradient(to right, ${typeColors.join(', ')})`;
+        }
+
+      } catch (e) {
+        document.getElementById('pokemon-nombre').textContent = 'Error al cargar Pokémon';
+      }
+    });
+
+    async function getWeaknesses(types) {
+      const weaknessesSet = new Set();
+      for (const type of types) {
+        const res = await axios.get(`https://pokeapi.co/api/v2/type/${type}`);
+        res.data.damage_relations.double_damage_from.forEach(d => weaknessesSet.add(d.name));
+      }
+      return Array.from(weaknessesSet);
+    }
+  </script>
+</body>
+
+</html>
