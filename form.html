@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario con Bootstrap</title>
+    <!-- Importar Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body style="background-image:url(gif.jpeg) ;background-repeat: no-repeat;background-size: cover;">
+    <div class="container mt-5">
+        <!-- Botón para abrir el modal -->
+        <div class="d-grid gap-2 col-6 mx-auto mb-4">
+            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#formModal">
+                Abrir Formulario de Registro
+            </button>
+        </div>
+
+        <!-- Tabla dinámica -->
+        <div class="mt-4">
+            <h2 class="text-center">Registros</h2>
+            <table class="table table-bordered table-striped" id="tablaRegistros">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Item</th>
+                        <th>Nombres</th>
+                        <th>Apellidos</th>
+                        <th>Teléfono</th>
+                        <th>Documento</th>
+                        <th>Correo Electrónico</th>
+                        <th>Fecha de Nacimiento</th>
+                        <th>Género</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los registros se agregarán dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal para el formulario de registro -->
+        <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="formModalLabel">REGISTRARSE</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="registroForm">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="Nombres" id="name">
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="Apellidos" id="apellido">
+                            </div>
+                            <div class="mb-3">
+                                <input type="tel" class="form-control" placeholder="Número de Teléfono" id="tel"
+                                    pattern="[0-9]{10}">
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="Número de Documento" id="documento"
+                                    pattern="[0-9]{8,12}">
+                            </div>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="Correo Electrónico" id="email">
+                            </div>
+                            <div class="mb-3">
+                                <input type="date" class="form-control" id="fecha">
+                            </div>
+                            <!-- Campo Género -->
+                            <div class="mb-3">
+                                <label class="form-label d-block mb-2">Género:</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="genero" id="generoMasculino" value="Masculino">
+                                    <label class="form-check-label" for="generoMasculino">Masculino</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="genero" id="generoFemenino" value="Femenino">
+                                    <label class="form-check-label" for="generoFemenino">Femenino</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="genero" id="generoOtro" value="Otro">
+                                    <label class="form-check-label" for="generoOtro">Otro</label>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success w-100" id="boton1">Enviar</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para errores -->
+        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="errorMessage"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para éxito -->
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="successModalLabel">Éxito</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¡Registro añadido con éxito!
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de confirmación para eliminar -->
+        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title" id="confirmDeleteLabel">Confirmar eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro de que deseas eliminar este registro?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Importar Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const registros = [];
+        let editando = false;
+        let filaEditando = null;
+        let filaAEliminar = null; // Para la confirmación
+
+        // Inicializar tooltips en todos los elementos con data-bs-toggle="tooltip"
+        function inicializarTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+
+        document.getElementById('boton1').addEventListener('click', () => {
+            const name = document.getElementById('name').value.trim();
+            const apellido = document.getElementById('apellido').value.trim();
+            const tel = document.getElementById('tel').value.trim();
+            const documento = document.getElementById('documento').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const fecha = document.getElementById('fecha').value;
+            const genero = document.querySelector('input[name="genero"]:checked') ? document.querySelector('input[name="genero"]:checked').value : '';
+
+            // Validaciones
+            if (!name) {
+                showErrorModal('Por favor, complete el campo de NOMBRE.');
+                return;
+            }
+            if (!apellido) {
+                showErrorModal('Por favor, complete el campo de APELLIDOS.');
+                return;
+            }
+            if (!tel) {
+                showErrorModal('Por favor, complete el campo de TELÉFONO.');
+                return;
+            } else if (!/^\d{10}$/.test(tel)) {
+                showErrorModal('El número de teléfono debe tener 10 dígitos.');
+                return;
+            }
+            if (!documento) {
+                showErrorModal('Por favor, complete el campo de DOCUMENTO.');
+                return;
+            } else if (!/^\d{8,12}$/.test(documento)) {
+                showErrorModal('El documento debe tener entre 8 y 12 dígitos.');
+                return;
+            }
+            if (!email) {
+                showErrorModal('Por favor, complete el campo de CORREO ELECTRÓNICO.');
+                return;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showErrorModal('Por favor, ingrese un correo válido.');
+                return;
+            }
+            if (!fecha) {
+                showErrorModal('Por favor, complete el campo de FECHA.');
+                return;
+            }
+            if (!genero) {
+                showErrorModal('Por favor, seleccione el GÉNERO.');
+                return;
+            }
+
+            if (editando && filaEditando) {
+                filaEditando.children[1].textContent = name;
+                filaEditando.children[2].textContent = apellido;
+                filaEditando.children[3].textContent = tel;
+                filaEditando.children[4].textContent = documento;
+                filaEditando.children[5].textContent = email;
+                filaEditando.children[6].textContent = fecha;
+                filaEditando.children[7].textContent = genero;
+                editando = false;
+                filaEditando = null;
+            } else {
+                const nuevoRegistro = { name, apellido, tel, documento, email, fecha, genero };
+                registros.push(nuevoRegistro);
+                agregarRegistroATabla(nuevoRegistro);
+            }
+            // Cerrar el modal al completar el formulario correctamente
+            const formModal = bootstrap.Modal.getInstance(document.getElementById('formModal'));
+            formModal.hide();
+
+            showSuccessModal();
+            document.getElementById('registroForm').reset();
+            actualizarItems();
+        });
+
+        function showErrorModal(message) {
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            document.getElementById('errorMessage').textContent = message;
+            errorModal.show();
+        }
+
+        function showSuccessModal() {
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+        }
+
+        function agregarRegistroATabla(registro) {
+            const tablaCuerpo = document.querySelector('#tablaRegistros tbody');
+            const fila = document.createElement('tr');
+            const item = tablaCuerpo.rows.length + 1;
+
+            fila.innerHTML = `
+                <td>${item}</td>
+                <td>${registro.name}</td>
+                <td>${registro.apellido}</td>
+                <td>${registro.tel}</td>
+                <td>${registro.documento}</td>
+                <td>${registro.email}</td>
+                <td>${registro.fecha}</td>
+                <td>${registro.genero}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="eliminarRegistro(this)" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">❌</button>
+                    <button class="btn btn-warning btn-sm" onclick="editarRegistro(this)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">✏️</button>
+                </td>
+            `;
+            tablaCuerpo.appendChild(fila);
+            actualizarItems();
+            inicializarTooltips(); // Inicializar tooltips para los nuevos botones
+        }
+
+        // Cambiado: ahora pide confirmación en modal antes de eliminar
+        function eliminarRegistro(button) {
+            filaAEliminar = button.closest('tr');
+            const confirmModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            confirmModal.show();
+        }
+
+        // Botón "Eliminar" del modal de confirmación
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+                if (filaAEliminar) {
+                    filaAEliminar.remove();
+                    actualizarItems();
+                    filaAEliminar = null;
+                    // Cerrar el modal de confirmación
+                    const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal'));
+                    confirmModal.hide();
+                }
+            });
+            inicializarTooltips();
+        });
+
+        function editarRegistro(button) {
+            const fila = button.closest('tr');
+            document.getElementById('name').value = fila.children[1].textContent;
+            document.getElementById('apellido').value = fila.children[2].textContent;
+            document.getElementById('tel').value = fila.children[3].textContent;
+            document.getElementById('documento').value = fila.children[4].textContent;
+            document.getElementById('email').value = fila.children[5].textContent;
+            document.getElementById('fecha').value = fila.children[6].textContent;
+            // Seleccionar el género correspondiente
+            const genero = fila.children[7].textContent;
+            if (genero === "Masculino") {
+                document.getElementById('generoMasculino').checked = true;
+            } else if (genero === "Femenino") {
+                document.getElementById('generoFemenino').checked = true;
+            } else if (genero === "Otro") {
+                document.getElementById('generoOtro').checked = true;
+            }
+
+            editando = true;
+            filaEditando = fila;
+
+            const formModal = new bootstrap.Modal(document.getElementById('formModal'));
+            formModal.show();
+        }
+
+        document.getElementById('formModal').addEventListener('hidden.bs.modal', () => {
+            editando = false;
+            filaEditando = null;
+            document.getElementById('registroForm').reset();
+        });
+
+        function actualizarItems() {
+            const filas = document.querySelectorAll('#tablaRegistros tbody tr');
+            filas.forEach((fila, idx) => {
+                fila.children[0].textContent = idx + 1;
+            });
+        }
+    </script>
+</body>
+
+</html>
