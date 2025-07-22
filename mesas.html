@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    /* Centrado de la barra y el botón principal */
+    .top-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 40px;
+      gap: 20px;
+    }
+    .botonAb {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+    .botonAb button {
+      height: 40px;
+      min-width: 180px;
+      padding: 0 30px;
+      border-radius: 25px;
+      background: linear-gradient(90deg, #8f5fd4 70%, #6dd5ed 100%);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      box-shadow: 0 2px 10px rgba(143, 95, 212, 0.15);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .botonAb button:hover {
+      background: linear-gradient(90deg, #6dd5ed 70%, #8f5fd4 100%);
+      transform: scale(1.05);
+    }
+    .busqueda-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    #busqueda {
+      width: 320px;
+      max-width: 90vw;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.04);
+      background: #fff;
+      margin-bottom: 10px;
+    }
+    /* Grid de mesas */
+    #mesas {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 18px;
+      margin: 30px auto 0 auto;
+      padding: 0 10px 40px 10px;
+      box-sizing: border-box;
+    }
+    #divCard {
+      border: 1px solid #ececec;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(143, 95, 212, 0.06);
+      padding: 18px 12px 14px 12px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: box-shadow 0.2s;
+    }
+    #divCard:hover {
+      box-shadow: 0 4px 16px rgba(143, 95, 212, 0.16);
+    }
+    #mesa {
+      height: 60px;
+      width: 60px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    /* Modal/dialogo */
+    dialog {
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 6px 32px rgba(143, 95, 212, 0.18);
+      padding: 0;
+      max-width: 400px;
+      width: 92vw;
+      background: #fff;
+    }
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.32);
+    }
+    .dialog-content {
+      padding: 26px 20px 22px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #5a2d82;
+    }
+    .dialog-content h1 {
+      margin: 0 0 18px 0;
+      font-size: 1.6rem;
+      color: #6a42a1;
+    }
+    .form-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .form-fields input,
+    .form-fields select {
+      padding: 9px 12px;
+      font-size: 1rem;
+      border-radius: 7px;
+      border: 1px solid #bdbdbd;
+      outline: none;
+      transition: border 0.2s;
+      background: #f9f9fc;
+    }
+    .form-fields input:focus,
+    .form-fields select:focus {
+      border: 1.5px solid #8f5fd4;
+    }
+    #mensajeExito {
+      color: #219150;
+      font-weight: bold;
+      display: none;
+      margin-bottom: 6px;
+      font-size: 1.01rem;
+      text-align: center;
+    }
+    #mensajeError {
+      color: #d32f2f;
+      font-weight: bold;
+      display: none;
+      margin-bottom: 6px;
+      font-size: 1.01rem;
+      text-align: center;
+    }
+    #registrar {
+      margin-top: 8px;
+      padding: 10px 0;
+      background: linear-gradient(90deg, #8f5fd4 60%, #6dd5ed 100%);
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      font-size: 1.08rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    #registrar:hover {
+      background: linear-gradient(90deg, #6dd5ed 60%, #8f5fd4 100%);
+      transform: scale(1.04);
+    }
+    /* Botones de las tarjetas */
+    #divCard button {
+      margin: 0 8px;
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: none;
+      background: #f2f2fa;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.2s, transform 0.2s;
+    }
+    #divCard button:hover {
+      background: #e1d8f1;
+      transform: scale(1.08);
+    }
+    /* Fondo de estado en la imagen */
+    #divCard > div:first-child {
+      width: 70px;
+      height: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    /* Responsive */
+    @media (max-width: 600px) {
+      .dialog-content h1 {
+        font-size: 1.2rem;
+      }
+      .form-fields {
+        max-width: 95vw;
+      }
+      #mesas {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .top-bar {
+        margin-top: 20px;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="botonAb">
+      <button onclick="miDialogo.showModal()">Abrir Formulario</button>
+    </div>
+    <div class="busqueda-container">
+      <input type="text" id="busqueda" placeholder="Buscar por número de mesa" style="display:none">
+    </div>
+  </div>
+  <div id="mesas"></div>
+
+  <dialog id="miDialogo">
+    <div class="dialog-content">
+      <h1>Restaurante</h1>
+      <div class="form-fields">
+        <div id="mensajeExito"></div>
+        <div id="mensajeError"></div>
+        <input type="text" id="nro" placeholder="Nro de mesa">
+        <input type="text" id="descripcion" placeholder="Descripción">
+        <input type="text" id="personas" placeholder="Capacidad de personas">
+        <select id="estado">
+          <option value="libre">Libre</option>
+          <option value="reservar">Reservar</option>
+          <option value="ocupado">Ocupado</option>
+        </select>
+        <button id="registrar">Guardar Mesa</button>
+      </div>
+    </div>
+  </dialog>
+  <script>
+    let datosMesa = []
+    let modo = 0
+    let numMesa = ""
+
+    document.getElementById("registrar").addEventListener("click", () => {
+      if (modo == 0) {
+        guardarMesa()
+      } else if (modo == 1) {
+        editarMesa()
+      }
+    });
+
+    function mostrarError(msg) {
+      const mensaje = document.getElementById("mensajeError");
+      mensaje.textContent = msg;
+      mensaje.style.display = "block";
+      setTimeout(() => mensaje.style.display = "none", 2500);
+    }
+    function mostrarExito(msg) {
+      const mensaje = document.getElementById("mensajeExito");
+      mensaje.textContent = msg;
+      mensaje.style.display = "block";
+      setTimeout(() => mensaje.style.display = "none", 2000);
+    }
+    function actualizarBusquedaVisible() {
+      const busqueda = document.getElementById("busqueda");
+      if (datosMesa.length > 0) {
+        busqueda.style.display = "block";
+      } else {
+        busqueda.style.display = "none";
+      }
+    }
+    document.getElementById("busqueda").addEventListener("input", function () {
+      pintarMesas();
+    });
+    function guardarMesa() {
+      const nro = document.getElementById("nro").value.trim();
+      const descripcion = document.getElementById("descripcion").value.trim();
+      const personas = document.getElementById("personas").value.trim();
+      const estado = document.getElementById("estado").value;
+
+      if (!nro || !descripcion || !personas || !estado) {
+        mostrarError("Todos los campos son obligatorios");
+        return;
+      }
+      if (!/^\d+$/.test(nro) || parseInt(nro) <= 0) {
+        mostrarError("El número de mesa debe ser un número entero positivo");
+        return;
+      }
+      if (modo === 0 && datosMesa.some(mesa => mesa.numero === nro)) {
+        mostrarError("Ya existe una mesa con ese número");
+        return;
+      }
+      if (descripcion.length < 3) {
+        mostrarError("La descripción debe tener al menos 3 caracteres");
+        return;
+      }
+      if (!/^\d+$/.test(personas) || parseInt(personas) <= 0) {
+        mostrarError("La capacidad debe ser un número mayor que cero");
+        return;
+      }
+      if (!["libre", "reservar", "ocupado"].includes(estado)) {
+        mostrarError("Seleccione un estado válido");
+        return;
+      }
+      let mesa = {
+        numero: nro,
+        descripcion: descripcion,
+        personas: personas,
+        estado: estado,
+      }
+      datosMesa.unshift(mesa);
+      mostrarExito("Registro exitoso");
+      limpiar();
+      actualizarBusquedaVisible();
+      pintarMesas();
+    }
+    function limpiar() {
+      document.getElementById("nro").value = ""
+      document.getElementById("descripcion").value = ""
+      document.getElementById("personas").value = ""
+      document.getElementById("estado").value = "libre"
+    }
+    function editarMesa() {
+      const nro = document.getElementById("nro").value.trim();
+      const descripcion = document.getElementById("descripcion").value.trim();
+      const personas = document.getElementById("personas").value.trim();
+      const estado = document.getElementById("estado").value;
+
+      if (!nro || !descripcion || !personas || !estado) {
+        mostrarError("Todos los campos son obligatorios");
+        return;
+      }
+      if (!/^\d+$/.test(nro) || parseInt(nro) <= 0) {
+        mostrarError("El número de mesa debe ser un número entero positivo");
+        return;
+      }
+      if (nro !== numMesa && datosMesa.some(mesa => mesa.numero === nro)) {
+        mostrarError("Ya existe una mesa con ese número");
+        return;
+      }
+      if (descripcion.length < 3) {
+        mostrarError("La descripción debe tener al menos 3 caracteres");
+        return;
+      }
+      if (!/^\d+$/.test(personas) || parseInt(personas) <= 0) {
+        mostrarError("La capacidad debe ser un número mayor que cero");
+        return;
+      }
+      if (!["libre", "reservar", "ocupado"].includes(estado)) {
+        mostrarError("Seleccione un estado válido");
+        return;
+      }
+      let indice = datosMesa.findIndex(it => it.numero == numMesa)
+      datosMesa[indice].numero = nro
+      datosMesa[indice].descripcion = descripcion
+      datosMesa[indice].personas = personas
+      datosMesa[indice].estado = estado
+      pintarMesas()
+      modo = 0
+      document.getElementById("registrar").textContent = "Guardar Mesa"
+      limpiar()
+    }
+    function pintarMesas() {
+      document.getElementById("mesas").textContent = ""
+      let filtro = document.getElementById("busqueda").value.trim();
+      let datosFiltrados = datosMesa;
+      if (filtro !== "") {
+        datosFiltrados = datosMesa.filter(item => item.numero.includes(filtro));
+      }
+      datosFiltrados.forEach((item, i) => {
+        let divCard = document.createElement("div")
+        divCard.id = "divCard"
+        // Contenedor de imagen con fondo según estado
+        let divImagen = document.createElement("div")
+        divImagen.style.display = "flex"
+        divImagen.style.justifyContent = "center"
+        divImagen.style.alignItems = "center"
+        divImagen.style.borderRadius = "10px"
+        divImagen.style.padding = "5px"
+        if (item.estado === "libre") {
+          divImagen.style.backgroundColor = "#b7f7b7";
+        } else if (item.estado === "reservar") {
+          divImagen.style.backgroundColor = "#ffe08c";
+        } else if (item.estado === "ocupado") {
+          divImagen.style.backgroundColor = "#f7b7b7";
+        } else {
+          divImagen.style.backgroundColor = "#eee";
+        }
+        let imagen = document.createElement("img")
+        imagen.id = "mesa"
+        imagen.src = "https://img.freepik.com/vector-premium/dibujos-animados-mesa_119631-412.jpg"
+        divImagen.appendChild(imagen)
+        divCard.appendChild(divImagen)
+        let divTextos = document.createElement("div")
+        let parrafoDescripcion = document.createElement("p")
+        let numeroMesa = document.createElement("span")
+        numeroMesa.textContent = "Mesa: " + item.numero + " | Estado: " + item.estado
+        parrafoDescripcion.textContent = item.descripcion
+        divTextos.appendChild(parrafoDescripcion)
+        divTextos.appendChild(numeroMesa)
+        divCard.appendChild(divTextos)
+        let divBotones = document.createElement("div")
+        let editar = document.createElement("button")
+        editar.textContent = "📝"
+        editar.title = "Editar"
+        editar.addEventListener("click", () => {
+          document.getElementById("nro").value = item.numero
+          document.getElementById("descripcion").value = item.descripcion
+          document.getElementById("personas").value = item.personas
+          document.getElementById("estado").value = item.estado
+          document.getElementById("registrar").textContent = "Editar Mesa"
+          modo = 1
+          numMesa = item.numero
+          miDialogo.showModal();
+        })
+        let eliminar = document.createElement("button")
+        eliminar.textContent = "❌"
+        eliminar.title = "Eliminar"
+        eliminar.addEventListener("click", () => {
+          let indice = datosMesa.findIndex(it => it.numero == item.numero)
+          datosMesa.splice(indice, 1)
+          actualizarBusquedaVisible();
+          pintarMesas()
+        })
+        divBotones.appendChild(editar)
+        divBotones.appendChild(eliminar)
+        divCard.appendChild(divBotones)
+        document.getElementById("mesas").appendChild(divCard)
+      });
+      actualizarBusquedaVisible();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Citas Veterinarias</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.7), rgba(248, 252, 255, 0.7)),
+                url('https://images.freeimages.com/images/premium/previews/2738/27380928-wild-animals-icon-collage.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            min-height: 100vh;
+            padding: 24px 0 48px 0;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #1976d2;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        button {
+            background: linear-gradient(90deg, #1976d2 60%, #43a047 100%);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 6px;
+            margin: 5px 0;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #1565c0 60%, #388e3c 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+
+        #filtroEstado {
+            margin-left: 12px;
+            margin-bottom: 10px;
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: 1px solid #b0bec5;
+            font-size: 1em;
+            background: #f9fbfc;
+            transition: border 0.2s;
+        }
+
+        #filtroEstado:focus {
+            border: 1.5px solid #1976d2;
+            outline: none;
+        }
+
+        #busquedaCitas {
+            margin: 18px 0 0 0;
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #b0bec5;
+            width: 320px;
+            font-size: 1em;
+        }
+
+        #contenedorCitas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 0;
+            padding: 18px 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            position: relative;
+            transition: box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 28px rgba(25, 118, 210, 0.16);
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .animal-image-card {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+            border: 2.5px solid #e3eaf3;
+            background: #f4f6f8;
+            display: block;
+        }
+
+        .card-id {
+            font-size: 1.1em;
+            color: #1976d2;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .mascota-nombre {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 8px;
+        }
+
+        .card-info {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 6px;
+        }
+
+        .card-info strong {
+            color: #1976d2;
+        }
+
+        .acciones {
+            margin-top: 14px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .acciones button {
+            background: #e53935;
+            margin-right: 0;
+            font-size: 0.98em;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .acciones button:first-child {
+            background: #43a047;
+        }
+
+        .acciones button:hover {
+            opacity: 0.96;
+            filter: brightness(1.08);
+        }
+
+        .estado-select {
+            margin-top: 4px;
+            margin-bottom: 0;
+            width: auto;
+            padding: 4px 10px;
+            border-radius: 5px;
+            border: 1px solid #b0bec5;
+            font-weight: 600;
+            background: #f1f8e9;
+            transition: border 0.2s;
+        }
+
+        .estado-abierto {
+            color: #1976d2;
+        }
+
+        .estado-terminado {
+            color: #43a047;
+        }
+
+        .estado-anulado {
+            color: #e53935;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            overflow: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+            margin: 40px auto;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px 12px;
+            border: 1.3px solid #b0bec5;
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box;
+            background: #f9fbfc;
+            transition: border 0.2s, box-shadow 0.18s;
+        }
+
+        .modal-content input:focus,
+        .modal-content textarea:focus,
+        .modal-content select:focus {
+            border: 1.5px solid #1976d2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.10);
+            outline: none;
+            background: #e3f2fd;
+        }
+
+        .modal-content textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        #imagenAnimal {
+            max-width: 220px;
+            max-height: 150px;
+            margin: 10px auto 18px auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(25, 118, 210, 0.09);
+            border: 1.2px solid #e3eaf3;
+        }
+
+        @media (max-width: 1100px) {
+            #contenedorCitas {
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            #contenedorCitas {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 18px 6px 14px 6px;
+            }
+        }
+
+        #imagen-inicio-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 32px 0 12px 0;
+        }
+
+        #imagen-inicio {
+            max-width: 300px;
+            width: 90vw;
+            height: auto;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(25, 118, 210, 0.10);
+            object-fit: cover;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-main">
+        <h2>Sistema de Citas Veterinarias</h2>
+        <button onclick="abrirModal()">Nueva Cita</button>
+        <label for="filtroEstado"><strong>Filtrar por estado:</strong></label>
+        <select id="filtroEstado" onchange="filtrarCitas()">
+            <option value="todos">Todos</option>
+            <option value="abierto">Abierto</option>
+            <option value="terminado">Terminado</option>
+            <option value="anulado">Anulado</option>
+        </select>
+        <!-- Imagen principal -->
+        <div id="imagen-inicio-container">
+            <img id="imagen-inicio"
+                src="https://images.freeimages.com/images/premium/previews/2738/27380928-wild-animals-icon-collage.jpg"
+                alt="Veterinaria">
+        </div>
+        <!-- Input de búsqueda debajo de la imagen -->
+        <input type="text" id="busquedaCitas" placeholder="Buscar por ID, Nombre de mascota o Propietario..."
+            oninput="filtrarCitas()" />
+        <div id="contenedorCitas"></div>
+    </div>
+    <!-- Modal de Nueva/Editar Cita -->
+    <div id="modalCita" class="modal">
+        <div class="modal-content">
+            <h2 id="tituloModal">Registrar Nueva Cita</h2>
+            <form id="formCita" onsubmit="guardarCita(event)">
+                <input type="text" id="nombrePropietario" placeholder="Nombre del propietario" required>
+                <input type="text" id="nombreMascota" placeholder="Nombre de la mascota" required>
+                <select id="tipoAnimal" required onchange="actualizarImagenAnimal(this.value)">
+                    <option value="">Seleccione un animal</option>
+                    <option value="perro">Perro</option>
+                    <option value="gato">Gato</option>
+                    <option value="conejo">Conejo</option>
+                    <option value="hamster">Hámster</option>
+                    <option value="loro">Loro</option>
+                    <option value="tortuga">Tortuga</option>
+                    <option value="pez">Pez</option>
+                    <option value="cobaya">Cobaya</option>
+                    <option value="serpiente">Serpiente</option>
+                    <option value="iguana">Iguana</option>
+                </select>
+                <img id="imagenAnimal" src="" alt="Imagen del animal" style="display:none;">
+                <textarea id="sintomas" placeholder="Síntomas" required></textarea>
+                <input type="date" id="fecha" required>
+                <input type="time" id="hora" required>
+                <button type="submit" id="btnGuardar">Guardar</button>
+                <button type="button" onclick="cerrarModal()" style="background:#888;margin-left:8px;">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    <!-- Modal de Confirmación de Eliminación -->
+    <div id="modalConfirmacion" class="modal">
+        <div class="modal-content">
+            <h3 style="color:#e53935;margin-top:0;">¿Eliminar cita?</h3>
+            <p>¿Estás seguro de que deseas eliminar esta cita? Esta acción no se puede deshacer.</p>
+            <div style="margin-top:18px;display:flex;gap:12px;justify-content:center;">
+                <button id="btnConfirmarEliminar" style="background:#e53935;">Eliminar</button>
+                <button id="btnCancelarEliminar" style="background:#888;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // URLs de imágenes de animales
+        const imagenesAnimales = {
+            perro: "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=400&q=80",
+            gato: "https://images.ctfassets.net/denf86kkcx7r/4IPlg4Qazd4sFRuCUHIJ1T/f6c71da7eec727babcd554d843a528b8/gatocomuneuropeo-97?fm=webp&w=612",
+            conejo: "https://media.istockphoto.com/id/518322790/es/foto/beb%C3%A9-de-orange-conejo.jpg?s=612x612&w=0&k=20&c=JyBOVHBUeTI9fMP-L5sUkrCk_GUOjl011Hg0s1xMPnI=",
+            hamster: "https://tierarzt-karlsruhe-durlach.de/wp-content/uploads/2023/07/hamster-1555083.jpg",
+            loro: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Amazona_autumnalis_-Jurong_BirdPark-8b.jpg/250px-Amazona_autumnalis_-Jurong_BirdPark-8b.jpg",
+            tortuga: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgD18dNNZVqrzUQgLfysfN3L2bKfEyCo8pGQ&s",
+            pez: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEfPTkFXD2ZNR66XRHWh-edj_yXgWbVRa14w&s",
+            cobaya: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY4s5NEQWXw23Ctm-XFRjos2-_mLzmwRvMHQ&s",
+            serpiente: "https://cdn0.expertoanimal.com/es/posts/5/8/3/tipos_de_serpientes_24385_orig.jpg",
+            iguana: "https://www.cali.gov.co/info/caligovco_se/media/pubInt/thumbs/thpubInt_700X400_176508.webp"
+        };
+
+        let citas = [];
+        let idPorFecha = {};
+        let editandoId = null;
+        let citaAEliminar = null;
+
+        function abrirModal(id = null) {
+            document.getElementById('modalCita').style.display = 'flex';
+            document.getElementById('formCita').reset();
+            document.getElementById('imagenAnimal').style.display = "none";
+            editandoId = null;
+            document.getElementById('tituloModal').textContent = 'Registrar Nueva Cita';
+            document.getElementById('btnGuardar').textContent = 'Guardar';
+
+            if (id !== null) {
+                editandoId = id;
+                const cita = citas.find(c => c.id === id && c.fecha === c.fecha);
+                if (cita) {
+                    document.getElementById('nombrePropietario').value = cita.nombrePropietario;
+                    document.getElementById('nombreMascota').value = cita.nombreMascota || '';
+                    document.getElementById('tipoAnimal').value = cita.tipoAnimal;
+                    document.getElementById('sintomas').value = cita.sintomas;
+                    document.getElementById('fecha').value = cita.fecha;
+                    document.getElementById('hora').value = cita.hora;
+                    actualizarImagenAnimal(cita.tipoAnimal);
+                    document.getElementById('tituloModal').textContent = 'Editar Cita';
+                    document.getElementById('btnGuardar').textContent = 'Actualizar';
+                }
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalCita').style.display = 'none';
+            editandoId = null;
+        }
+
+        function actualizarImagenAnimal(tipo) {
+            const img = document.getElementById('imagenAnimal');
+            if (imagenesAnimales[tipo]) {
+                img.src = imagenesAnimales[tipo];
+                img.style.display = "block";
+            } else {
+                img.src = "";
+                img.style.display = "none";
+            }
+        }
+
+        function guardarCita(e) {
+            e.preventDefault();
+
+            const fechaInput = document.getElementById('fecha');
+            const fechaSeleccionada = fechaInput.value;
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const fechaDate = new Date(fechaSeleccionada);
+
+            if (!fechaSeleccionada) {
+                alert('Debe seleccionar una fecha.');
+                return;
+            }
+            if (fechaDate < hoy) {
+                alert('La fecha debe ser posterior a hoy');
+                return;
+            }
+            const datosCita = {
+                nombrePropietario: document.getElementById('nombrePropietario').value.trim(),
+                nombreMascota: document.getElementById('nombreMascota').value.trim(),
+                tipoAnimal: document.getElementById('tipoAnimal').value,
+                sintomas: document.getElementById('sintomas').value.trim(),
+                fecha: fechaSeleccionada,
+                hora: document.getElementById('hora').value,
+                imagen: imagenesAnimales[document.getElementById('tipoAnimal').value]
+            };
+            if (editandoId !== null) {
+                // Actualizar cita existente
+                const cita = citas.find(c => c.id === editandoId && c.fecha === fechaSeleccionada);
+                if (cita) {
+                    cita.nombrePropietario = datosCita.nombrePropietario;
+                    cita.nombreMascota = datosCita.nombreMascota;
+                    cita.tipoAnimal = datosCita.tipoAnimal;
+                    cita.sintomas = datosCita.sintomas;
+                    cita.fecha = datosCita.fecha;
+                    cita.hora = datosCita.hora;
+                    cita.imagen = datosCita.imagen;
+                }
+            } else {
+                // Nueva cita: ID reiniciado por fecha
+                if (!idPorFecha[fechaSeleccionada]) idPorFecha[fechaSeleccionada] = 1;
+                const idCita = idPorFecha[fechaSeleccionada]++;
+                citas.push({
+                    id: idCita,
+                    ...datosCita,
+                    estado: 'abierto'
+                });
+            }
+            actualizarVista();
+            cerrarModal();
+        }
+
+        function actualizarVista() {
+            const contenedor = document.getElementById('contenedorCitas');
+            contenedor.innerHTML = '';
+
+            const estadoFiltro = document.getElementById('filtroEstado').value;
+            const terminoBusqueda = document.getElementById('busquedaCitas') ? document.getElementById('busquedaCitas').value.trim().toLowerCase() : '';
+
+            let citasFiltradas = citas;
+
+            // Filtrar por estado
+            if (estadoFiltro !== 'todos') {
+                citasFiltradas = citasFiltradas.filter(cita => cita.estado === estadoFiltro);
+            }
+
+            // Filtrar por búsqueda
+            if (terminoBusqueda !== '') {
+                citasFiltradas = citasFiltradas.filter(cita => {
+                    const idStr = String(cita.id);
+                    return (
+                        idStr.includes(terminoBusqueda) ||
+                        (cita.nombreMascota && cita.nombreMascota.toLowerCase().includes(terminoBusqueda)) ||
+                        (cita.nombrePropietario && cita.nombrePropietario.toLowerCase().includes(terminoBusqueda))
+                    );
+                });
+            }
+
+            citasFiltradas.forEach(cita => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                let claseEstado = '';
+                if (cita.estado === 'abierto') claseEstado = 'estado-abierto';
+                else if (cita.estado === 'terminado') claseEstado = 'estado-terminado';
+                else if (cita.estado === 'anulado') claseEstado = 'estado-anulado';
+
+                card.innerHTML = `
+                    ${cita.imagen ? `<img src="${cita.imagen}" class="animal-image-card" alt="${cita.tipoAnimal}">` : ""}
+                    <div class="card-id">ID: ${cita.id}</div>
+                    <div class="mascota-nombre">${cita.nombreMascota || ''}</div>
+                    <div class="card-info"><strong>Propietario:</strong> ${cita.nombrePropietario}</div>
+                    <div class="card-info"><strong>Animal:</strong> ${cita.tipoAnimal.charAt(0).toUpperCase() + cita.tipoAnimal.slice(1)}</div>
+                    <div class="card-info"><strong>Fecha:</strong> ${cita.fecha}</div>
+                    <div class="card-info"><strong>Hora:</strong> ${cita.hora}</div>
+                    <div class="card-info"><strong>Síntomas:</strong> ${cita.sintomas}</div>
+                    <div class="card-info">
+                        <strong>Estado:</strong>
+                        <select class="estado-select ${claseEstado}" onchange="cambiarEstado(${cita.id}, this.value, '${cita.fecha}')">
+                            <option value="abierto" ${cita.estado === 'abierto' ? 'selected' : ''}>Abierto</option>
+                            <option value="terminado" ${cita.estado === 'terminado' ? 'selected' : ''}>Terminado</option>
+                            <option value="anulado" ${cita.estado === 'anulado' ? 'selected' : ''}>Anulado</option>
+                        </select>
+                    </div>
+                    <div class="acciones">
+                        <button onclick="abrirModal(${cita.id})">Editar</button>
+                        <button onclick="eliminarCita(${cita.id}, '${cita.fecha}')">Eliminar</button>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            });
+        }
+
+        function cambiarEstado(id, nuevoEstado, fecha) {
+            const cita = citas.find(c => c.id === id && c.fecha === fecha);
+            if (cita) {
+                cita.estado = nuevoEstado;
+                actualizarVista();
+            }
+        }
+
+        // MODAL DE CONFIRMACIÓN PERSONALIZADO
+        function eliminarCita(id, fecha) {
+            citaAEliminar = { id, fecha };
+            document.getElementById('modalConfirmacion').style.display = 'flex';
+        }
+
+        document.getElementById('btnConfirmarEliminar').onclick = function () {
+            if (citaAEliminar) {
+                citas = citas.filter(c => !(c.id === citaAEliminar.id && c.fecha === citaAEliminar.fecha));
+                actualizarVista();
+                citaAEliminar = null;
+            }
+            document.getElementById('modalConfirmacion').style.display = 'none';
+        };
+
+        document.getElementById('btnCancelarEliminar').onclick = function () {
+            citaAEliminar = null;
+            document.getElementById('modalConfirmacion').style.display = 'none';
+        };
+
+        // Cerrar modales al hacer clic fuera del contenido
+        window.onclick = function (event) {
+            if (event.target.className === 'modal') {
+                cerrarModal();
+                document.getElementById('modalConfirmacion').style.display = 'none';
+            }
+        }
+
+        function filtrarCitas() {
+            actualizarVista();
+        }
+
+        // Inicial
+        actualizarVista();
+    </script>
+</body>
+
+</html>
